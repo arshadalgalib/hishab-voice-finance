@@ -1,0 +1,64 @@
+# ─── Secrets & local configuration ────────────────────────────────────────────
+.env
+.env.*
+!.env.example
+*.jks
+*.keystore
+key.properties
+android/key.properties
+**/google-services.json
+**/GoogleService-Info.plist
+secrets/
+*.pem
+*.p12
+
+# ─── Flutter / Dart ───────────────────────────────────────────────────────────
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+.pub-cache/
+.pub/
+build/
+*.lock.bak
+
+# ─── Android ─────────────────────────────────────────────────────────────────
+/android/.gradle/
+/android/local.properties
+/android/app/debug/
+/android/app/profile/
+/android/app/release/
+/android/.cxx/
+*.apk
+*.aab
+*.ap_
+*.dex
+*.class
+
+# ─── IDE ─────────────────────────────────────────────────────────────────────
+.idea/
+.vscode/*
+!.vscode/launch.json
+*.iml
+*.ipr
+*.iws
+.atom/
+.history/
+
+# ─── OS ──────────────────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+*.swp
+*~
+
+# ─── Test / coverage output ──────────────────────────────────────────────────
+coverage/
+test/failures/
+*.tmp
+
+# ─── Local runtime data ──────────────────────────────────────────────────────
+/local_data/
+/exports/
+/backups/
+*.sqlite
+*.sqlite-journal

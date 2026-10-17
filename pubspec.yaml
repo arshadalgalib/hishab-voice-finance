@@ -1,0 +1,80 @@
+name: personal_finance_manager
+description: "Voice-first, local-first personal finance manager for Bangladesh (BDT)."
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: ">=3.10.0 <4.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  # Material/Cupertino strings for the `bn` locale. The app's own chrome is
+  # English; this makes platform widgets (date picker, dialogs) follow the
+  # chosen language.
+  flutter_localizations:
+    sdk: flutter
+
+  # ── State management & navigation ─────────────────────────────────────────
+  flutter_riverpod: ^3.4.3
+  go_router: ^18.1.0
+
+  # ── Local persistence ────────────────────────────────────────────────────
+  # NOTE: drift is pinned to 2.31.x on purpose. From drift 2.32 onwards the
+  # `sqlite3` dependency moves to 3.x, which ships SQLite through Dart *build
+  # hooks* and therefore requires a host C toolchain (clang) to compile in
+  # addition to the Android NDK. Drift 2.31 + sqlite3 2.9 + the classic
+  # `sqlite3_flutter_libs` Gradle/CMake plugin is the combination that builds
+  # reliably in this environment (and on any normal Android build machine).
+  drift: 2.31.0
+  sqlite3: ^2.9.0
+  sqlite3_flutter_libs: ^0.5.42
+  path: ^1.9.0
+  path_provider: ^2.1.5
+
+  # ── Security ─────────────────────────────────────────────────────────────
+  flutter_secure_storage: ^11.2.0
+  local_auth: ^3.0.2
+  crypto: ^3.0.6
+  pointycastle: ^4.0.0
+
+  # ── Voice ────────────────────────────────────────────────────────────────
+  # `speech_to_text` requests the microphone permission itself, so
+  # `permission_handler` is not needed. (It was removed on purpose: its Android
+  # module declares `compileSdk = 37`, and only the `android-37.0` platform is
+  # published, which AGP cannot match — pulling an unused plugin in would only
+  # break the build.)
+  speech_to_text: ^7.5.0
+
+  # ── Presentation ─────────────────────────────────────────────────────────
+  fl_chart: ^1.2.0
+
+  # ── Notifications ────────────────────────────────────────────────────────
+  flutter_local_notifications: ^22.3.2
+  timezone: ^0.11.2
+  flutter_timezone: ^5.1.1
+
+  # ── Export / backup / sharing ────────────────────────────────────────────
+  share_plus: ^13.3.1
+  file_picker: ^13.1.0
+  csv: ^8.0.0
+
+  # ── Utilities ────────────────────────────────────────────────────────────
+  uuid: ^4.6.0
+  meta: ^1.16.0
+  # Standard Flutter icon font package. The framework references
+  # `CupertinoIcons` (e.g. from adaptive widgets), so the font must be bundled
+  # or the release icon-tree-shaker warns about a missing font family.
+  cupertino_icons: ^1.0.8
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+  drift_dev: 2.31.0
+  build_runner: ^2.4.13
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/

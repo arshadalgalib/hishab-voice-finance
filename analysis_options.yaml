@@ -1,0 +1,26 @@
+include: package:flutter_lints/flutter.yaml
+
+analyzer:
+  errors:
+    # Drift generates `part` files; treat missing generated code as an error so
+    # a forgotten build_runner run is obvious.
+    invalid_annotation_target: ignore
+  exclude:
+    - "**/*.g.dart"
+    - "**/*.freezed.dart"
+    - "build/**"
+    - ".dart_tool/**"
+    - android/**
+
+linter:
+  rules:
+    prefer_single_quotes: true
+    avoid_print: true
+    unawaited_futures: false
+    always_declare_return_types: true
+    avoid_empty_else: true
+    cancel_subscriptions: true
+    close_sinks: true
+    prefer_final_locals: true
+    unnecessary_await_in_return: true
+    use_string_buffers: true
