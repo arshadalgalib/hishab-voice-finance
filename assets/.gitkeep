@@ -1,5 +1,0 @@
-# This file keeps the (currently empty) `assets/` directory in git.
-#
-# `pubspec.yaml` references `assets/`, and Flutter fails the build if a declared
-# asset directory is missing. Git does not track empty directories, so this
-# placeholder is required. Delete it once real assets are added.

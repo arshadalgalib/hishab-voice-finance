@@ -1,0 +1,22 @@
+# Release signing configuration.
+#
+# 1. Create an upload keystore (once — keep it safe; losing it means you can
+#    never update the app on Play under the same listing):
+#
+#      keytool -genkey -v -keystore android/app/upload-keystore.jks \
+#        -keyalg RSA -keysize 2048 -validity 10000 -alias upload
+#
+# 2. Copy this file to `android/key.properties` and fill in the passwords.
+#    `key.properties`, `*.jks` and `*.keystore` are git-ignored — never commit
+#    them and never ship them inside the app.
+#
+# 3. `storeFile` is resolved relative to `android/app/`.
+#
+# With `key.properties` present, `flutter build appbundle` / `flutter build apk
+# --release` produces a properly signed release. Without it, the build falls back
+# to the debug key and prints a warning.
+
+storePassword=CHANGE_ME
+keyPassword=CHANGE_ME
+keyAlias=upload
+storeFile=upload-keystore.jks

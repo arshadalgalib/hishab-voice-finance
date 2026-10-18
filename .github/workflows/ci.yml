@@ -45,3 +45,43 @@ jobs:
 
       - name: Test
         run: flutter test
+
+  build-release:
+    name: Build release bundle
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: 3.47.7
+          channel: stable
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      # Builds the exact artifact the Play Store receives and exercises R8,
+      # resource shrinking and the keeps in android/app/proguard-rules.pro — the
+      # parts of a release that unit tests cannot cover. CI has no signing key,
+      # so the output is debug-signed and must not be published.
+      - name: Build release App Bundle
+        run: >-
+          flutter build appbundle --release
+          --obfuscate --split-debug-info=build/symbols
+
+      - name: Upload App Bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: hishab-release-aab
+          path: build/app/outputs/bundle/release/*.aab
+          if-no-files-found: error
+          retention-days: 7

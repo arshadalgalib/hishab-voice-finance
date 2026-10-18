@@ -28,7 +28,7 @@ confirm it*.
 12. [Implemented features](#implemented-features)
 13. [Tested workflows](#tested-workflows)
 14. [Known limitations & assumptions](#known-limitations--assumptions)
-15. [Building an APK](#building-an-apk)
+15. [Building an APK or App Bundle](#building-an-apk-or-app-bundle)
 
 ---
 
@@ -396,7 +396,7 @@ flutter test                    # all suites green
 
 flutter run                     # on a connected device/emulator
 flutter build apk --debug       # debug APK
-flutter build apk --release     # debug-key-signed release APK
+flutter build apk --release     # release APK (see "Building an APK or App Bundle")
 ```
 
 The conventional entry point `lib/main.dart` delegates to `lib/app/main.dart`, so
@@ -572,23 +572,66 @@ claims):
 - **Notifications** are best-effort: exact-alarm battery restrictions on some
   OEM Android builds can delay scheduled reminders.
 - **Currency is fixed to BDT.** There is no multi-currency support.
-- The **release APK is signed with the debug key** so it builds out of the box;
-  replace the signing config before publishing.
+- **Release signing needs a key you provide.** The build falls back to the debug
+  key when `android/key.properties` is absent, so a release artifact is only
+  publishable once you add your own upload keystore (see below).
 
 ---
 
-## Building an APK
+## Building an APK or App Bundle
 
 ```bash
 source /home/groot/development/env.sh
 flutter build apk --debug      # build/app/outputs/flutter-apk/app-debug.apk
-flutter build apk --release    # build/app/outputs/flutter-apk/app-release.apk
+flutter build apk --release    # release APK (see "Release signing" below)
 ```
 
-Debug and release differ only by optimisation and the deliberately-temporary
-debug signing key (`android/app/build.gradle.kts`). `minSdk` is 23, core-library
-desugaring is enabled for the notification plugin, and the app requests only the
-microphone permission (plus the standard `POST_NOTIFICATIONS` on API 33+).
+For anything you intend to hand to someone, use the helper below — it produces
+the **smallest** artifacts on purpose:
+
+```bash
+./tool/build_release.sh          # App Bundle + one APK per ABI
+./tool/build_release.sh bundle   # App Bundle only (Play Store)
+./tool/build_release.sh apk      # per-ABI APKs only (sideloading)
+```
+
+Three things keep the download small:
+
+- **One ABI per artifact.** The native libraries (`libflutter.so` + `libapp.so` +
+  `libsqlite3.so`) are the bulk of the app, and every CPU architecture needs its
+  own copy — a "fat" APK bundling all of them is two to three times the size of a
+  single-architecture download. Release builds therefore ship only `arm64-v8a`
+  and `armeabi-v7a` and drop `x86_64` (which exists only for the emulator; it is
+  still built for `debug`). `flutter build appbundle` — or `--split-per-abi` —
+  then delivers exactly one architecture per device.
+- **R8 + resource shrinking** delete unused Java/Kotlin code and resources. The
+  keeps that reflection-based plugins need (notably Gson in
+  `flutter_local_notifications`) live in `android/app/proguard-rules.pro`.
+- **`--obfuscate --split-debug-info`** shorten Dart symbol names in `libapp.so`.
+  The mapping needed to read crash stack traces is written to `build/symbols/` —
+  keep it with the release, but never ship it inside the app.
+
+### Release signing
+
+`tool/build_release.sh` produces an **unsigned-for-publishing** artifact unless
+you provide a key: the release build uses `android/key.properties` when it
+exists and otherwise falls back to the debug key (and warns). Create the keystore
+and the properties file once:
+
+```bash
+keytool -genkey -v -keystore android/app/upload-keystore.jks \
+  -keyalg RSA -keysize 2048 -validity 10000 -alias upload
+cp android/key.properties.example android/key.properties   # then fill it in
+```
+
+`key.properties`, `*.jks` and `*.keystore` are git-ignored — keep the keystore
+safe (losing it means you can never update the Play listing) and never commit or
+ship it. With the file in place, `flutter build appbundle` / `--release` produce
+a properly signed release; without it, the build still works for evaluation.
+
+`minSdk` is 23, core-library desugaring is enabled for the notification plugin,
+and the app requests only the microphone permission (plus the standard
+`POST_NOTIFICATIONS` on API 33+).
 
 ---
 
